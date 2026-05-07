@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>M4 | Gelişmiş Performans Analizi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #0f172a; --accent: #3b82f6; --success: #10b981; --eur: #8b5cf6; --fis: #f59e0b; --bg: #f8fafc; }
+        body { background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; padding: 30px; color: #1e293b; }
+        .container { max-width: 1300px; margin: auto; }
+        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+        .grid { display: grid; grid-template-columns: 1.8fr 1fr; gap: 30px; margin-top: 25px; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; font-size: 11px; text-transform: uppercase; color: #64748b; padding: 15px; border-bottom: 2px solid #f1f5f9; }
+        td { padding: 15px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+        .rank-tag { background: var(--primary); color: white; padding: 5px 12px; border-radius: 8px; font-weight: 800; }
+        .val-tl { color: var(--success); font-weight: 700; }
+        .val-eur { color: var(--eur); font-weight: 700; }
+        .val-fis { color: var(--fis); font-weight: 700; }
+        .summary-box { margin-top: 20px; padding: 15px; border-radius: 12px; font-size: 13px; line-height: 1.5; border-left: 5px solid var(--accent); }
+        .summary-1 { background: #eff6ff; color: #1e40af; }
+        .summary-2 { background: #fdf2f8; color: #9d174d; border-left-color: #ec4899; }
+        .summary-3 { background: #f0fdf4; color: #166534; border-left-color: #22c55e; }
+        .btn-action { background: var(--accent); color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; font-weight: 700; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <h1 style="font-weight: 800; font-size: 28px; letter-spacing: -1px;">M4 Operasyonel Analiz Merkezi</h1>
+        <p style="color: #64748b;">Mağaza bazlı fiş-ciro korelasyonu ve verimlilik raporu</p>
+
+        <div class="grid">
+            <!-- TABLO -->
+            <div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Sıra</th>
+                            <th>Mağaza</th>
+                            <th>P. Sayısı</th>
+                            <th>Ort. TL</th>
+                            <th>Ort. Euro</th>
+                            <th>Ort. Fiş</th>
+                        </tr>
+                    </thead>
+                    <tbody id="analizBody">
+                        <tr><td colspan="6" style="text-align:center; padding:40px;">Veriler analiz ediliyor...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- GELİŞMİŞ SİSTEM ÖZETLERİ -->
+            <div>
+                <h3 style="font-size: 18px; margin-bottom: 15px;">📊 Sistem Analiz Notları</h3>
+                
+                <div id="ozetCiro" class="summary-box summary-1">
+                    <strong>🏆 CİRO LİDERLİĞİ:</strong><br>
+                    <span id="txtCiro">Analiz ediliyor...</span>
+                </div>
+
+                <div id="ozetIliski" class="summary-box summary-2">
+                    <strong>🔄 FİŞ & SATIŞ İLİŞKİSİ:</strong><br>
+                    <span id="txtIliski">Analiz ediliyor...</span>
+                </div>
+
+                <div id="ozetVerimlilik" class="summary-box summary-3">
+                    <strong>💡 OPERASYONEL TAVSİYE:</strong><br>
+                    <span id="txtTavsiye">Analiz ediliyor...</span>
+                </div>
+
+                <button class="btn-action" style="margin-top: 20px;" onclick="analizYukle()">🔄 Verileri Güncelle</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyAUmPriiPHN2imt_fDugoU43Gypj3Z79TRBILD1_TRWsKLnulfZrkv9thLu99lc4sVQQ/exec";
+
+    async function analizYukle() {
+        try {
+            const response = await fetch(SCRIPT_URL + "?mode=analiz");
+            const data = await response.json();
+            const tbody = document.getElementById('analizBody');
+            tbody.innerHTML = '';
+
+            data.forEach((m, index) => {
+                // Fiş ortalamasını tam sayıya yuvarlıyoruz
+                const yuvarlanmisFis = Math.round(m.ortFis);
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td><span class="rank-tag">#${index + 1}</span></td>
+                        <td><strong>${m.magaza}</strong></td>
+                        <td>${m.personel} P.</td>
+                        <td class="val-tl">${parseFloat(m.ortTL).toLocaleString('tr-TR')} ₺</td>
+                        <td class="val-eur">€ ${m.ortEuro}</td>
+                        <td class="val-fis">${yuvarlanmisFis} Fiş</td>
+                    </tr>`;
+            });
+
+            if(data.length > 0) {
+                // 1. ÖZET: Ciro Lideri
+                const lider = data[0];
+                document.getElementById('txtCiro').innerText = `${lider.magaza} mağazası, personel başına ${lider.ortTL} ₺ ile en yüksek satış performansına sahip.`;
+
+                // 2. ÖZET: Fiş & Satış İlişkisi (Korelasyon Analizi)
+                // Mantık: Fiş başı ciro yüksekse "Kaliteli Satış", fiş çok ama ciro düşükse "Küçük Satış"
+                const fisBasiCiro = (lider.ortTL / lider.ortFis).toFixed(2);
+                let iliskiNotu = "";
+                if(fisBasiCiro > 500) {
+                    iliskiNotu = `${lider.magaza} mağazasında fiş başına düşen ciro (${fisBasiCiro} ₺) oldukça yüksek. Personel adetli veya yüksek değerli satışa odaklanmış görünüyor.`;
+                } else {
+                    iliskiNotu = "Fiş sayıları ile ciro paralellik gösteriyor. Satış hacmini artırmak için sepet büyüklüğüne odaklanılabilir.";
+                }
+                document.getElementById('txtIliski').innerText = iliskiNotu;
+
+                // 3. ÖZET: Operasyonel Tavsiye
+                const enDusuk = data[data.length - 1];
+                document.getElementById('txtTavsiye').innerText = `${enDusuk.magaza} mağazasında fiş ortalaması düşük seyrediyor. M4 genelinde verimliliği artırmak için bu noktadaki trafik/dönüşüm oranları incelenmeli.`;
+            }
+
+        } catch (e) {
+            console.error(e);
+            document.getElementById('analizBody').innerHTML = 'Hata: Veriler işlenemedi.';
+        }
+    }
+
+    window.onload = analizYukle;
+</script>
+</body>
+</html>
