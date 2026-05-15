@@ -21,6 +21,10 @@
         th { background: #f8fafc; padding: 18px; text-align: left; font-size: 12px; font-weight: 800; color: #64748b; border-bottom: 2px solid #f1f5f9; }
         td { padding: 18px; border-bottom: 1px solid #f1f5f9; }
         .score-badge { padding: 6px 12px; border-radius: 8px; font-weight: 800; font-size: 14px; background: #f1f5f9; color: var(--primary); }
+        
+        /* Yeni Buton Stil */
+        .nav-btn { background: white; color: var(--primary); border: 1px solid #e2e8f0; padding: 12px 24px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; text-decoration: none; display: inline-flex; align-items: center; font-size: 14px; }
+        .nav-btn:hover { background: #f1f5f9; }
     </style>
 </head>
 <body>
@@ -31,7 +35,11 @@
             <h1 style="font-weight:800; font-size:28px; letter-spacing:-1px;">M4 Bölgesel Strateji Paneli</h1>
             <p id="updateTime" style="color:#64748b; font-size:13px;">Analiz motoru aktif...</p>
         </div>
-        <button onclick="verileriGetir()" style="background:var(--primary); color:white; border:none; padding:12px 24px; border-radius:12px; font-weight:700; cursor:pointer; transition:0.3s;">🔄 Analizi Yenile</button>
+        <div style="display: flex; gap: 10px;">
+            <!-- EKLENEN BUTON -->
+            <a href="personel.html" class="nav-btn">👤 Personel Paneli</a>
+            <button onclick="verileriGetir()" style="background:var(--primary); color:white; border:none; padding:12px 24px; border-radius:12px; font-weight:700; cursor:pointer; transition:0.3s;">🔄 Analizi Yenile</button>
+        </div>
     </div>
 
     <div class="analysis-grid">
