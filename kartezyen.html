@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Performans ve Görüş Paneli</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #fdfdfd; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        th { background: #2c3e50; color: white; padding: 12px; }
+        td { padding: 10px; border: 1px solid #ddd; text-align: center; }
+        .renk-iyi { background-color: #28a745 !important; color: white; font-weight: bold; }
+        .renk-orta { background-color: #ffc107 !important; color: black; }
+        .renk-zayif { background-color: #dc3545 !important; color: white; }
+        .yorum-alani { background: #fffde7; cursor: text; border: 1px dashed #ccc; min-width: 150px; }
+    </style>
+</head>
+<body>
+
+    <h2>Performans Analiz ve Yönetici Görüşü</h2>
+    <table id="dataTable">
+        <thead id="head"></thead>
+        <tbody id="body"></tbody>
+    </table>
+
+    <script>
+        const url = "https://script.google.com/macros/s/AKfycbyp3ENBvo1seNg8olM7xFU2OCbj5t6BVmhjIvC79BIZBY2z7wq9IzrtqQSzhUU0xLhZbw/exec"; // DAĞITIM LİNKİNİZİ BURAYA YAPIŞTIRIN
+
+        fetch(url)
+            .then(r => r.json())
+            .then(data => {
+                const targetHeaders = ["Kasiyer Sicil Numarası", "AD SOYAD", "POZİSYON", "VARDİYA (GECE-GÜNDÜZ)", "toplam fiş", "toplam süre", "Fiş Başı Süre (Saniye)", "SATIR SAYISI", "Final Puan", "Yönetici Görüşü"];
+                
+                let puanlar = data.values.map(row => parseFloat(row[data.headers.indexOf("Final Puan")]) || 0);
+                let minPuan = Math.min(...puanlar);
+                let maxPuan = Math.max(...puanlar);
+                let aralik = (maxPuan - minPuan) / 3;
+
+                document.getElementById('head').innerHTML = `<tr>${targetHeaders.map(h => `<th>${h}</th>`).join('')}</tr>`;
+
+                const body = document.getElementById('body');
+                data.values.forEach(row => {
+                    let tr = document.createElement('tr');
+                    let sicil = row[data.headers.indexOf("Kasiyer Sicil Numarası")]; // Başlık isminizle aynı olmalı
+                    
+                    targetHeaders.forEach(h => {
+                        let idx = data.headers.indexOf(h);
+                        let td = document.createElement('td');
+                        
+                        if (h === "Yönetici Görüşü") {
+                            td.className = "yorum-alani";
+                            td.contentEditable = "true";
+                            let commentRow = data.comments ? data.comments.find(c => c[0] == sicil) : null;
+                            td.textContent = commentRow ? commentRow[1] : "Tıklayıp yazın...";
+                            
+                            td.onblur = function() {
+                                fetch(url, {
+                                    method: "POST",
+                                    body: JSON.stringify({ sicil: sicil, yorum: this.textContent })
+                                });
+                            };
+                        } else {
+                            td.textContent = (idx !== -1) ? row[idx] : "";
+                        }
+
+                        if (h === "Final Puan") {
+                            let puan = parseFloat(row[idx]) || 0;
+                            if (puan >= minPuan + (2 * aralik)) td.className = 'renk-iyi';
+                            else if (puan >= minPuan + aralik) td.className = 'renk-orta';
+                            else td.className = 'renk-zayif';
+                        }
+                        tr.appendChild(td);
+                    });
+                    body.appendChild(tr);
+                });
+            });
+    </script>
+</body>
+</html>
