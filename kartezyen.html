@@ -1,29 +1,58 @@
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Performans ve Görüş Paneli</title>
+    <title>Performans Analiz Raporu</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #fdfdfd; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        th { background: #2c3e50; color: white; padding: 12px; }
-        td { padding: 10px; border: 1px solid #ddd; text-align: center; }
-        .renk-iyi { background-color: #28a745 !important; color: white; font-weight: bold; }
-        .renk-orta { background-color: #ffc107 !important; color: black; }
-        .renk-zayif { background-color: #dc3545 !important; color: white; }
-        .yorum-alani { background: #fffde7; cursor: text; border: 1px dashed #ccc; min-width: 150px; }
+        body { font-family: 'Segoe UI', sans-serif; padding: 30px; background: #f1f5f9; color: #1e293b; }
+        
+        /* PDF/Yazdırma Ayarları: Görünümü birebir korur */
+        @media print {
+            body { background: white !important; padding: 10px !important; }
+            .no-print { display: none !important; }
+            table { box-shadow: none !important; border: 1px solid #e2e8f0 !important; width: 100% !important; }
+            
+            /* Renklerin PDF'de birebir çıkmasını zorunlu kılar */
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            
+            th { background: #0f172a !important; color: #f8fafc !important; }
+            .renk-iyi { background-color: #dcfce7 !important; color: #166534 !important; }
+            .renk-orta { background-color: #fef3c7 !important; color: #92400e !important; }
+            .renk-zayif { background-color: #fee2e2 !important; color: #991b1b !important; }
+            .yorum-alani { background-color: #fffbeb !important; }
+        }
+
+        h2 { color: #0f172a; border-bottom: 3px solid #3b82f6; padding-bottom: 10px; display: inline-block; margin-bottom: 25px; letter-spacing: -0.5px; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        
+        th { background: #0f172a; color: #f8fafc; padding: 20px 15px; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; text-align: center; }
+        td { padding: 20px 15px; border-bottom: 1px solid #e2e8f0; text-align: center; font-size: 14px; }
+        
+        .renk-iyi { background-color: #dcfce7; color: #166534; font-weight: 800; border-left: 4px solid #22c55e; }
+        .renk-orta { background-color: #fef3c7; color: #92400e; font-weight: 800; border-left: 4px solid #eab308; }
+        .renk-zayif { background-color: #fee2e2; color: #991b1b; font-weight: 800; border-left: 4px solid #ef4444; }
+        
+        .yorum-alani { background: #fffbeb; border-left: 4px solid #f59e0b; padding: 15px; cursor: text; min-width: 250px; text-align: left !important; font-size: 13px; }
+        
+        .btn-print { padding: 12px 24px; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; transition: 0.3s; }
+        .btn-print:hover { background: #2563eb; }
     </style>
 </head>
 <body>
 
-    <h2>Performans Analiz ve Yönetici Görüşü</h2>
+    <div class="no-print">
+        <h2>📊 Performans Analiz Paneli</h2>
+        <br>
+           </div>
+
     <table id="dataTable">
         <thead id="head"></thead>
         <tbody id="body"></tbody>
     </table>
 
     <script>
-        const url = "https://script.google.com/macros/s/AKfycbyp3ENBvo1seNg8olM7xFU2OCbj5t6BVmhjIvC79BIZBY2z7wq9IzrtqQSzhUU0xLhZbw/exec"; // DAĞITIM LİNKİNİZİ BURAYA YAPIŞTIRIN
+        const url = "https://script.google.com/macros/s/AKfycbyp3ENBvo1seNg8olM7xFU2OCbj5t6BVmhjIvC79BIZBY2z7wq9IzrtqQSzhUU0xLhZbw/exec";
 
         fetch(url)
             .then(r => r.json())
@@ -40,7 +69,7 @@
                 const body = document.getElementById('body');
                 data.values.forEach(row => {
                     let tr = document.createElement('tr');
-                    let sicil = row[data.headers.indexOf("Kasiyer Sicil Numarası")]; // Başlık isminizle aynı olmalı
+                    let sicil = row[data.headers.indexOf("Kasiyer Sicil Numarası")];
                     
                     targetHeaders.forEach(h => {
                         let idx = data.headers.indexOf(h);
@@ -50,7 +79,7 @@
                             td.className = "yorum-alani";
                             td.contentEditable = "true";
                             let commentRow = data.comments ? data.comments.find(c => c[0] == sicil) : null;
-                            td.textContent = commentRow ? commentRow[1] : "Tıklayıp yazın...";
+                            td.textContent = commentRow ? commentRow[1] : "Not girin...";
                             
                             td.onblur = function() {
                                 fetch(url, {
